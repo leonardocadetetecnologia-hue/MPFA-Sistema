@@ -1,0 +1,19 @@
+{
+  "name": "@mpfa/worker",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "build": "tsc -p tsconfig.build.json",
+    "typecheck": "tsc -p tsconfig.json --noEmit",
+    "start": "node --env-file-if-exists=../../.env --enable-source-maps dist/main.js",
+    "test": "jest",
+    "test:integration": "node --env-file-if-exists=../../.env ../../node_modules/jest/bin/jest.js -c jest.integration.config.js --runInBand"
+  },
+  "dependencies": {
+    "@mpfa/config": "^0.1.0",
+    "@mpfa/contracts": "^0.1.0",
+    "@mpfa/logger": "^0.1.0",
+    "bullmq": "^5.81.5",
+    "ioredis": "^5.11.1"
+  }
+}
