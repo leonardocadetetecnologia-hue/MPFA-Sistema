@@ -1,0 +1,22 @@
+{
+  "name": "@mpfa/database",
+  "version": "0.1.0",
+  "private": true,
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "files": [
+    "dist",
+    "prisma"
+  ],
+  "scripts": {
+    "generate": "prisma generate",
+    "build": "prisma generate && tsc -p tsconfig.json && node -e \"require('fs').cpSync('src/generated','dist/generated',{recursive:true})\"",
+    "typecheck": "tsc -p tsconfig.json --noEmit",
+    "migrate:dev": "node --env-file-if-exists=../../.env ../../node_modules/prisma/build/index.js migrate dev",
+    "migrate:deploy": "node --env-file-if-exists=../../.env ../../node_modules/prisma/build/index.js migrate deploy",
+    "migrate:status": "node --env-file-if-exists=../../.env ../../node_modules/prisma/build/index.js migrate status"
+  },
+  "dependencies": {
+    "@prisma/client": "^6.19.3"
+  }
+}
