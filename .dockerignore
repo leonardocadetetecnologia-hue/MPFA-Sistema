@@ -1,0 +1,16 @@
+**/node_modules
+**/dist
+**/.next
+packages/database/src/generated
+**/coverage
+**/*.tsbuildinfo
+.git
+.github
+.local
+backups
+.env
+.env.*
+!.env.example
+MPFA_Diretrizes_Desenvolvimento
+*.zip
+docs

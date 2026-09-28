@@ -1,0 +1,99 @@
+# Plataforma MPFA — full stack on a single host (local, staging or production VPS).
+# Configuration and secrets come from `.env` (see .env.example); nothing host-specific
+# is hardcoded. Service-to-service addresses are wired here; to use an external
+# PostgreSQL/Redis, override DATABASE_URL/REDIS_URL in a compose override file.
+#
+#   docker compose up -d --build
+#
+# Persistent volumes: mpfa_pgdata (PostgreSQL), mpfa_redisdata (Redis/BullMQ state).
+
+name: mpfa
+
+x-app-env: &app-env
+  APP_ENV: ${APP_ENV:?APP_ENV is required}
+  LOG_LEVEL: ${LOG_LEVEL:-info}
+  DATABASE_URL: postgresql://${POSTGRES_USER:?}:${POSTGRES_PASSWORD:?}@postgres:5432/${POSTGRES_DB:?}
+  REDIS_URL: redis://redis:6379
+
+x-build: &build
+  context: .
+  dockerfile: infrastructure/docker/Dockerfile
+
+services:
+  postgres:
+    image: postgres:17-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:?}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?}
+      POSTGRES_DB: ${POSTGRES_DB:?}
+    volumes:
+      - mpfa_pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U "$$POSTGRES_USER" -d "$$POSTGRES_DB"']
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  redis:
+    image: redis:8-alpine
+    restart: unless-stopped
+    command: ['redis-server', '--appendonly', 'yes']
+    volumes:
+      - mpfa_redisdata:/data
+    healthcheck:
+      test: ['CMD', 'redis-cli', 'ping']
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  migrate:
+    build: { <<: *build, target: migrate }
+    environment: *app-env
+    depends_on:
+      postgres: { condition: service_healthy }
+    restart: 'no'
+
+  api:
+    build: { <<: *build, target: api }
+    restart: unless-stopped
+    environment:
+      <<: *app-env
+      API_PORT: 3001
+      CORS_ORIGINS: ${CORS_ORIGINS:-}
+      OPENAPI_ENABLED: ${OPENAPI_ENABLED:-}
+      HEALTH_CHECK_TIMEOUT_MS: ${HEALTH_CHECK_TIMEOUT_MS:-2000}
+    depends_on:
+      postgres: { condition: service_healthy }
+      redis: { condition: service_healthy }
+      migrate: { condition: service_completed_successfully }
+    # Published on loopback only: the reverse proxy (Coolify/Traefik/Nginx) terminates TLS.
+    ports:
+      - '127.0.0.1:${PUBLISH_API_PORT:-3001}:3001'
+
+  worker:
+    build: { <<: *build, target: worker }
+    restart: unless-stopped
+    environment:
+      <<: *app-env
+      WORKER_CONCURRENCY: ${WORKER_CONCURRENCY:-5}
+    depends_on:
+      redis: { condition: service_healthy }
+      migrate: { condition: service_completed_successfully }
+    stop_grace_period: 30s
+
+  web:
+    build: { <<: *build, target: web }
+    restart: unless-stopped
+    environment:
+      APP_ENV: ${APP_ENV:?}
+      LOG_LEVEL: ${LOG_LEVEL:-info}
+      API_INTERNAL_URL: http://api:3001
+    depends_on:
+      api: { condition: service_started }
+    ports:
+      - '127.0.0.1:${PUBLISH_WEB_PORT:-3000}:3000'
+
+volumes:
+  mpfa_pgdata:
+  mpfa_redisdata:
