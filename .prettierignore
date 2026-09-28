@@ -1,0 +1,14 @@
+node_modules
+dist
+.next
+coverage
+.local
+packages/database/src/generated
+package-lock.json
+apps/web/next-env.d.ts
+packages/database/prisma/migrations/migration_lock.toml
+# Governance documents are kept verbatim as delivered.
+AGENTS.md
+CLAUDE.md
+PROMPTS.md
+MPFA_Diretrizes_Desenvolvimento
