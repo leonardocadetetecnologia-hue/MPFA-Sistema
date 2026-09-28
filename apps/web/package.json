@@ -1,0 +1,22 @@
+{
+  "name": "@mpfa/web",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "build": "next build && node -e \"require('fs').cpSync('.next/static','.next/standalone/apps/web/.next/static',{recursive:true})\"",
+    "typecheck": "tsc --noEmit",
+    "start": "node --env-file-if-exists=../../.env .next/standalone/apps/web/server.js"
+  },
+  "dependencies": {
+    "@mpfa/config": "^0.1.0",
+    "@mpfa/contracts": "^0.1.0",
+    "next": "^16.3.6",
+    "react": "^19.3.0",
+    "react-dom": "^19.3.0",
+    "server-only": "^0.0.1"
+  },
+  "devDependencies": {
+    "@types/react": "^19.3.0",
+    "@types/react-dom": "^19.3.0"
+  }
+}
