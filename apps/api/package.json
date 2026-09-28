@@ -1,0 +1,32 @@
+{
+  "name": "@mpfa/api",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "build": "tsc -p tsconfig.build.json",
+    "typecheck": "tsc -p tsconfig.json --noEmit",
+    "start": "node --env-file-if-exists=../../.env --enable-source-maps dist/main.js",
+    "test": "jest",
+    "test:integration": "node --env-file-if-exists=../../.env ../../node_modules/jest/bin/jest.js -c jest.integration.config.js --runInBand"
+  },
+  "dependencies": {
+    "@mpfa/config": "^0.1.0",
+    "@mpfa/contracts": "^0.1.0",
+    "@mpfa/database": "^0.1.0",
+    "@mpfa/logger": "^0.1.0",
+    "@nestjs/common": "^11.2.6",
+    "@nestjs/core": "^11.2.6",
+    "@nestjs/platform-express": "^11.2.6",
+    "@nestjs/swagger": "^11.4.7",
+    "ioredis": "^5.11.1",
+    "nestjs-pino": "^4.6.1",
+    "pino-http": "^10.5.0",
+    "reflect-metadata": "^0.2.2",
+    "rxjs": "^7.8.2",
+    "zod": "^4.6.5"
+  },
+  "devDependencies": {
+    "@nestjs/testing": "^11.2.6",
+    "@types/express": "^5.0.6"
+  }
+}
