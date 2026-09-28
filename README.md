@@ -4,7 +4,7 @@ Monólito modular em TypeScript: `apps/web` (Next.js), `apps/api` (NestJS), `app
 PostgreSQL + Prisma e Redis. Regras permanentes do projeto: [`AGENTS.md`](AGENTS.md) /
 [`CLAUDE.md`](CLAUDE.md). Sequência de construção: [`PROMPTS.md`](PROMPTS.md).
 
-Estado atual: **PROMPT 01 — Foundation** (sem funcionalidades de negócio).
+Estado atual: **PROMPT 01 — Foundation concluído.** Ponto de parada e memória da sessão: [`docs/STATUS.md`](docs/STATUS.md). Próximo: PROMPT 02, só quando pedido.
 
 ## Estrutura
 
