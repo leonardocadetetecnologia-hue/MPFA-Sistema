@@ -2,8 +2,12 @@ import { Controller, Get, HttpStatus, Res } from '@nestjs/common';
 import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import type { Response } from 'express';
 import type { HealthResponse } from '@mpfa/contracts';
-import { HealthService } from './health.service';
+import { HealthService } from '../application/health.service';
 
+/**
+ * Presentation / Controller (C in MVC): HTTP only — status codes, OpenAPI, serialization.
+ * Business orchestration lives in HealthService (application).
+ */
 @ApiTags('health')
 @Controller('health')
 export class HealthController {

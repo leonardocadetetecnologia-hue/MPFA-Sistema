@@ -45,6 +45,12 @@ devolvidos no response, gravados em toda linha de log da requisição e devem se
 Base preparada (vazia) em `apps/api/src/modules`: `iam`, `organizations`, `users`, `audit`,
 `system-admin`. Layout interno e regras: `apps/api/src/modules/README.md`.
 
+## MVC nesta stack
+
+MVC não substitui o monólito modular: é o mapeamento
+**Controller → presentation**, **Model → domain/application/infrastructure**,
+**View → apps/web**. Convenção e exemplo `health`: [`mvc.md`](./mvc.md).
+
 ## Decisões
 
 Ver `docs/adr/` (ADR-001 a ADR-008).
