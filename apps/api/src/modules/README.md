@@ -7,11 +7,11 @@ módulos-base registrados vazios: `iam`, `organizations`, `users`, `audit`, `sys
 
 Não usamos pastas globais `models/` / `views/` / `controllers/`. O mapeamento é:
 
-| MVC | Camada Nest (módulo) | Responsabilidade |
-| --- | -------------------- | ---------------- |
-| **C** Controller | `presentation/` | HTTP, status, OpenAPI, Zod de entrada |
-| **M** Model | `domain/` + `application/` (+ `infrastructure/`) | Regras, casos de uso, persistência/adapters |
-| **V** View | `apps/web` (fora desta pasta) | UI Next.js |
+| MVC              | Camada Nest (módulo)                             | Responsabilidade                            |
+| ---------------- | ------------------------------------------------ | ------------------------------------------- |
+| **C** Controller | `presentation/`                                  | HTTP, status, OpenAPI, Zod de entrada       |
+| **M** Model      | `domain/` + `application/` (+ `infrastructure/`) | Regras, casos de uso, persistência/adapters |
+| **V** View       | `apps/web` (fora desta pasta)                    | UI Next.js                                  |
 
 Detalhes e exemplo `health`: [`docs/architecture/mvc.md`](../../../../docs/architecture/mvc.md).
 

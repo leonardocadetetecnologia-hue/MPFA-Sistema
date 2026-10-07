@@ -14,11 +14,11 @@ Aqui **MVC é o mapeamento mental** sobre as camadas que o `AGENTS.md` §3.1 já
 
 ## Mapeamento
 
-| MVC clássico | Nesta plataforma | Onde |
-| ------------ | ---------------- | ---- |
-| **Controller (C)** | Presentation | `apps/api/src/modules/<domínio>/presentation/` (ou equivalente em módulos de fundação) — HTTP, status code, OpenAPI, validação superficial Zod |
-| **Model (M)** | Domain + Application (+ Infrastructure de persistência/adapters) | `domain/` (entidades, invariantes, erros), `application/` (casos de uso), `infrastructure/` (Prisma, Redis, fornecedores) |
-| **View (V)** | Next.js | `apps/web` — UI e leitura server-side da API; **sem regra de negócio crítica** |
+| MVC clássico       | Nesta plataforma                                                 | Onde                                                                                                                                           |
+| ------------------ | ---------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Controller (C)** | Presentation                                                     | `apps/api/src/modules/<domínio>/presentation/` (ou equivalente em módulos de fundação) — HTTP, status code, OpenAPI, validação superficial Zod |
+| **Model (M)**      | Domain + Application (+ Infrastructure de persistência/adapters) | `domain/` (entidades, invariantes, erros), `application/` (casos de uso), `infrastructure/` (Prisma, Redis, fornecedores)                      |
+| **View (V)**       | Next.js                                                          | `apps/web` — UI e leitura server-side da API; **sem regra de negócio crítica**                                                                 |
 
 Fluxo típico:
 
