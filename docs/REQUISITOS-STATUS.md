@@ -3,6 +3,9 @@
 Atualizado: 2026-10-07  
 Base: código em `/workspace`, `PROMPTS.md`, ADRs, `docs/STATUS.md`.
 
+> **Produto imediato:** Ficha-Tempo Assistida — ver [`product/PLANO-DESENVOLVIMENTO.md`](product/PLANO-DESENVOLVIMENTO.md) e [`product/mpfa-requisitos-mvc-vibe-coding.md`](product/mpfa-requisitos-mvc-vibe-coding.md).  
+> Este ficheiro continua a espelhar o estado do **código** face à foundation / plataforma.
+
 Legenda: **OK** implementado · **PARCIAL** scaffold/docs · **PENDENTE** não existe · **AJUSTAR** desvio face ao alvo
 
 ---
