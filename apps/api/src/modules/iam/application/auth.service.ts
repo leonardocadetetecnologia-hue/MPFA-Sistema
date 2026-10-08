@@ -1,8 +1,13 @@
 import { randomBytes, randomUUID } from 'node:crypto';
 import type { PrismaClient } from '@mpfa/database';
 import type Redis from 'ioredis';
-import { UnauthorizedError, ValidationError } from '../../../common/errors/domain-error';
 import {
+  NotFoundError,
+  UnauthorizedError,
+  ValidationError,
+} from '../../../common/errors/domain-error';
+import {
+  assertCan,
   hashPassword,
   hashToken,
   verifyPassword,
@@ -62,11 +67,15 @@ export class AuthService {
   async actorFromSession(sessionId: string): Promise<Actor> {
     const raw = await this.redis.get(SESSION_PREFIX + sessionId);
     if (!raw) throw new UnauthorizedError('SESSION_EXPIRED', 'Sessão expirada.');
-    const actor = JSON.parse(raw) as Actor;
-    if (actor.status !== 'ACTIVE') {
+    const stored = JSON.parse(raw) as Actor;
+    const user = await this.prisma.user.findFirst({
+      where: { id: stored.userId, deletedAt: null },
+    });
+    if (!user || user.status !== 'ACTIVE') {
+      await this.redis.del(SESSION_PREFIX + sessionId);
       throw new UnauthorizedError('USER_DISABLED', 'Usuário desativado.');
     }
-    return actor;
+    return this.toActor(user);
   }
 
   async requestRecovery(
@@ -137,7 +146,6 @@ export class AuthService {
       clientId?: string | null;
     },
   ): Promise<{ id: string }> {
-    const { assertCan } = await import('../domain/access.js');
     assertCan(actor, 'user.manage');
     if (input.role === 'CLIENT' && !input.clientId) {
       throw new ValidationError('CLIENT_REQUIRED', 'Usuário externo precisa de um cliente.');
@@ -163,6 +171,33 @@ export class AuthService {
       },
     });
     return { id: created.id };
+  }
+
+  async disableUser(actor: Actor, userId: string): Promise<void> {
+    assertCan(actor, 'user.manage');
+    if (actor.userId === userId) {
+      throw new ValidationError('SELF_DISABLE', 'A própria conta não pode ser desativada por esta ação.');
+    }
+    const user = await this.prisma.user.findFirst({
+      where: { id: userId, organizationId: actor.organizationId, deletedAt: null },
+    });
+    if (!user) throw new NotFoundError('NOT_FOUND', 'Usuário não encontrado.');
+    if (user.status === 'DISABLED') return;
+    await this.prisma.user.update({
+      where: { id: user.id },
+      data: { status: 'DISABLED' },
+    });
+    await this.prisma.auditEvent.create({
+      data: {
+        organizationId: actor.organizationId,
+        actorUserId: actor.userId,
+        action: 'USER_DISABLED',
+        resourceType: 'user',
+        resourceId: user.id,
+        beforeData: { status: user.status },
+        afterData: { status: 'DISABLED' },
+      },
+    });
   }
 
   private toActor(user: {

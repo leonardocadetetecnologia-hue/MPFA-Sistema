@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Inject, Post, Req, Res, UseGuards } from '@nestjs/common';
+import { Body, Controller, Get, Inject, Param, Post, Req, Res, UseGuards } from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
 import type { ApiConfig } from '@mpfa/config';
 import type { Response } from 'express';
@@ -83,6 +83,15 @@ export class AuthController {
       role: input.role as AppRole,
       clientId: input.client_id,
     });
+  }
+
+  @Post('users/:id/disable')
+  @UseGuards(SessionGuard)
+  disableUser(@Req() req: RequestWithActor, @Param('id') id: string) {
+    if (!req.actor) throw new ValidationError('AUTH_REQUIRED', 'Autenticação necessária.');
+    const parsed = z.string().uuid().safeParse(id);
+    if (!parsed.success) throw new ValidationError('INVALID_ID', 'Identificador inválido.');
+    return this.auth.disableUser(req.actor, parsed.data).then(() => ({ ok: true }));
   }
 }
 
