@@ -20,7 +20,10 @@ async function bootstrap(): Promise<void> {
     throw error;
   }
 
-  const app = await NestFactory.create(AppModule.forRoot(config), { bufferLogs: true });
+  const app = await NestFactory.create(AppModule.forRoot(config), {
+    bufferLogs: true,
+    bodyParser: false,
+  });
   configureApp(app, config);
   await app.listen(config.API_PORT, '0.0.0.0');
 }

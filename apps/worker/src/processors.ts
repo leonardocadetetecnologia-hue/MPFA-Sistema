@@ -4,20 +4,47 @@ import type { Logger } from '@mpfa/logger';
 
 type Handler = (job: Job, logger: Logger) => Promise<unknown>;
 
-// Registry of job name -> handler. New modules register their jobs here
-// (e.g. webjur.publication.import) instead of creating ad-hoc workers.
-const handlers: Record<string, Handler> = {
-  [SYSTEM_JOBS.ping]: async (job) => {
-    const data = job.data as SystemPingJob;
-    return {
-      pong: true,
-      correlation_id: data.correlation_id,
-      processed_at: new Date().toISOString(),
-    };
-  },
-};
+export interface WorkerDeps {
+  apiInternalUrl?: string;
+  workerToken?: string;
+  fetchImpl?: typeof fetch;
+}
 
-export function createProcessor(logger: Logger) {
+// Registry of job name -> handler. New modules register their jobs here
+// instead of creating ad-hoc workers.
+export function createHandlers(deps: WorkerDeps = {}): Record<string, Handler> {
+  return {
+    [SYSTEM_JOBS.ping]: async (job) => {
+      const data = job.data as SystemPingJob;
+      return {
+        pong: true,
+        correlation_id: data.correlation_id,
+        processed_at: new Date().toISOString(),
+      };
+    },
+    [SYSTEM_JOBS.ingest]: async (job, logger) => {
+      if (!deps.apiInternalUrl || !deps.workerToken) {
+        throw new UnrecoverableError(
+          'Worker sem API_INTERNAL_URL ou WORKER_TOKEN para processar a importação.',
+        );
+      }
+      const batchId = (job.data as { payload?: { batch_id?: string } }).payload?.batch_id;
+      if (!batchId) throw new UnrecoverableError('Job de importação sem batch_id.');
+      const response = await (deps.fetchImpl ?? fetch)(
+        new URL(`/api/v1/internal/ingestion/${batchId}/process`, deps.apiInternalUrl),
+        { method: 'POST', headers: { 'x-worker-token': deps.workerToken } },
+      );
+      if (!response.ok) {
+        logger.warn({ status: response.status, batch_id: batchId }, 'ingestion replay rejected');
+        throw new Error(`ingestion replay failed with status ${response.status}`);
+      }
+      return { replayed: true, batch_id: batchId };
+    },
+  };
+}
+
+export function createProcessor(logger: Logger, deps: WorkerDeps = {}) {
+  const handlers = createHandlers(deps);
   return async (job: Job): Promise<unknown> => {
     const handler = handlers[job.name];
     if (!handler) {

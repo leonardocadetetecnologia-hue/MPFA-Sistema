@@ -25,6 +25,7 @@
     "test:integration": "npm run test:integration --workspaces --if-present",
     "db:migrate:dev": "npm run migrate:dev -w @mpfa/database",
     "db:migrate:deploy": "npm run migrate:deploy -w @mpfa/database",
+    "db:seed": "node --env-file-if-exists=.env infrastructure/scripts/seed.mjs",
     "local:up": "node --env-file-if-exists=.env infrastructure/scripts/local-up.mjs",
     "local:down": "node infrastructure/scripts/local-down.mjs",
     "local:redis": "node infrastructure/scripts/download-redis.mjs",

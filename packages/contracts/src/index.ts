@@ -39,6 +39,7 @@ export const QUEUES = {
 
 export const SYSTEM_JOBS = {
   ping: 'system.ping',
+  ingest: 'ingestion.process',
 } as const;
 
 export interface JobEnvelope<TPayload> {

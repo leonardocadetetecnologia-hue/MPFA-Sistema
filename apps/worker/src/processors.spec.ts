@@ -20,4 +20,10 @@ describe('createProcessor', () => {
   it('fails unknown jobs permanently instead of retrying', async () => {
     await expect(processor(job('unknown.job', {}))).rejects.toBeInstanceOf(UnrecoverableError);
   });
+
+  it('fails an ingestion job permanently when the worker cannot call the API', async () => {
+    await expect(
+      processor(job('ingestion.process', { correlation_id: 'c', payload: { batch_id: 'b' } })),
+    ).rejects.toBeInstanceOf(UnrecoverableError);
+  });
 });

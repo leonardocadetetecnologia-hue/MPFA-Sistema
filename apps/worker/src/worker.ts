@@ -29,10 +29,17 @@ export function startWorker(config: WorkerConfig, logger: Logger): RunningWorker
     logger.info({ provider: 'redis' }, 'redis connection restored');
   });
 
-  const worker = new Worker(QUEUES.system, createProcessor(logger), {
-    connection,
-    concurrency: config.WORKER_CONCURRENCY,
-  });
+  const worker = new Worker(
+    QUEUES.system,
+    createProcessor(logger, {
+      apiInternalUrl: config.API_INTERNAL_URL,
+      workerToken: config.WORKER_TOKEN,
+    }),
+    {
+      connection,
+      concurrency: config.WORKER_CONCURRENCY,
+    },
+  );
 
   worker.on('completed', (job) => {
     logger.info(

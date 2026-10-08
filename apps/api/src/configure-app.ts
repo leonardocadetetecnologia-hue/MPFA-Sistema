@@ -1,4 +1,5 @@
 import type { INestApplication } from '@nestjs/common';
+import { json, urlencoded } from 'express';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { Logger } from 'nestjs-pino';
 import type { ApiConfig } from '@mpfa/config';
@@ -9,6 +10,8 @@ export const API_PREFIX = 'api/v1';
 
 /** Cross-cutting HTTP setup shared by `main.ts` and integration tests. */
 export function configureApp(app: INestApplication, config: ApiConfig): void {
+  app.use(json({ limit: '20mb' }));
+  app.use(urlencoded({ extended: true, limit: '20mb' }));
   app.useLogger(app.get(Logger));
   app.use(requestContextMiddleware);
   app.useGlobalFilters(new AllExceptionsFilter());

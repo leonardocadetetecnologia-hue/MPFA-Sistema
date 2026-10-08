@@ -7,8 +7,9 @@ coverage/
 *.tsbuildinfo
 next-env.d.ts
 
-# Local runtime data (portable PostgreSQL/Redis, backups)
+# Local runtime data (portable PostgreSQL/Redis, backups, uploaded originals)
 .local/
+var/
 backups/
 
 # Environment files: only the example is versioned

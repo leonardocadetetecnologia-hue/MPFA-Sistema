@@ -142,7 +142,20 @@ h2 {
   cursor: pointer;
 }
 
-.button:focus-visible {
+.button:focus-visible,
+input:focus-visible {
   outline: 3px solid var(--focus);
   outline-offset: 2px;
+}
+
+.form {
+  display: grid;
+  gap: 0.5rem;
+}
+
+.form input {
+  font: inherit;
+  padding: 0.5rem 0.75rem;
+  border: 1px solid var(--border);
+  border-radius: 8px;
 }

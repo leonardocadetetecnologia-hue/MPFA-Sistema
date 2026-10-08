@@ -6,6 +6,7 @@ import { buildLoggerOptions } from '@mpfa/logger';
 import { ConfigModule } from './config/config.module';
 import { HealthModule } from './health/health.module';
 import { InfrastructureModule } from './infrastructure/infrastructure.module';
+import { ProductModule } from './modules/product.module';
 import { AuditModule } from './modules/audit/audit.module';
 import { IamModule } from './modules/iam/iam.module';
 import { OrganizationsModule } from './modules/organizations/organizations.module';
@@ -43,6 +44,7 @@ export class AppModule {
         UsersModule,
         AuditModule,
         SystemAdminModule,
+        ProductModule,
       ],
     };
   }

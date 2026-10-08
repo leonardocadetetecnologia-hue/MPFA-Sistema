@@ -1,0 +1,26 @@
+---
+description: Contrato de entrada das publicações Webjur. Vale em toda sessão deste projeto.
+alwaysApply: true
+---
+
+# Entrada Webjur
+
+No início de qualquer trabalho neste repositório, ler `AGENTS.md` e seguir esta regra.
+
+O dado de processo que o sistema absorve primeiro é o e-mail HTML do Webjur que o ADVWIN já lê. Layout: `WEBJUR_EMAIL_V1`. Um e-mail traz várias publicações.
+
+Obrigatório:
+
+- Guardar o HTML original. Acentos saem do HTML, não do texto puro do Outlook.
+- Recortar cada publicação pelos comentários `Inicio publicacao;;Processo:` e `Fim publicacao;;Processo:`.
+- Sem esses comentários, o item fica `SUSPICIOUS` e o original permanece. Nada se descarta em silêncio.
+- O mesmo CNJ pode repetir (uma intimação por destinatário, identificadores de documento diferentes). Não deduplicar só pelo CNJ.
+- Identidade do lote: `Message-ID`, `SeqEmail` e o link `leremail.ASP` (`cdEmpresa`, `cdCli`, `CdEmail`).
+- Assunto no formato `Public. {quantidade}. {diário} {dd/mm/yy} ({empresa.cliente})`.
+- Cabeçalho: cliente, data da pesquisa, diário, vencimento e termos entre `PalBuscaINI` e `PalBuscaFIM`. Essas OABs são o filtro. Linhas `ADVOGADO` do corpo incluem a parte contrária.
+- Dois corpos no mesmo e-mail: DJEN/PJe (polos, OAB, link, identificador do documento) e pauta (`Processo Nº`, relator, recorrente/recorrido).
+- Ingerir uma vez pela caixa Publicações.
+- O domínio não conhece Webjur. A porta é `PublicationSource`, com `WebjurEmailPublicationSource`.
+- Não inventar API, banco, credencial ou RPA do Webjur nem do ADVWIN.
+
+A ficha-tempo começa depois que a publicação existe. Stack permanece Nest + Next + Prisma. Detalhe do agente: `.cursor/agents/entrada-webjur.md`.

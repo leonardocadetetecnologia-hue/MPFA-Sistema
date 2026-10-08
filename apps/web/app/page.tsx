@@ -49,6 +49,11 @@ export default async function HomePage() {
         <p className="muted">
           Ambiente <strong>{environment}</strong>
         </p>
+        <p>
+          <a href="/login">Entrar</a>
+          {' · '}
+          <a href="/importacao">Importar publicação</a>
+        </p>
       </header>
 
       <section className="card" aria-labelledby="status-title">

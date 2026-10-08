@@ -34,11 +34,25 @@ const apiSchema = commonSchema.extend({
     ),
   OPENAPI_ENABLED: booleanString.optional(),
   HEALTH_CHECK_TIMEOUT_MS: z.coerce.number().int().min(100).max(30000).default(2000),
+  STORAGE_DIR: z.string().min(1).default('./var/storage'),
+  SESSION_TTL_SECONDS: z.coerce
+    .number()
+    .int()
+    .min(300)
+    .max(60 * 60 * 24 * 14)
+    .default(28800),
+  WORKER_TOKEN: z.string().default(''),
+  MICROSOFT_TENANT_ID: z.string().default(''),
+  MICROSOFT_CLIENT_ID: z.string().default(''),
+  MICROSOFT_CLIENT_SECRET: z.string().default(''),
+  MICROSOFT_MAILBOX: z.string().default(''),
 });
 
 const workerSchema = commonSchema.extend({
   REDIS_URL: redisUrl,
   WORKER_CONCURRENCY: z.coerce.number().int().min(1).max(100).default(5),
+  API_INTERNAL_URL: z.url().optional(),
+  WORKER_TOKEN: z.string().default(''),
 });
 
 const webSchema = commonSchema.extend({

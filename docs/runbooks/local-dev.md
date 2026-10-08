@@ -26,6 +26,7 @@ cp .env.example .env
 npm ci && npm run build
 npm run local:up                      # terminal dedicado; Ctrl+C encerra
 npm run db:migrate:deploy
+npm run db:seed                       # exige SEED_PASSWORD no .env; recusado em production
 npm run test:integration
 npm run start:api                     # outro terminal
 npm run start:worker

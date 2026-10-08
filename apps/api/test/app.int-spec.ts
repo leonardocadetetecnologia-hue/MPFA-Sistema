@@ -19,7 +19,7 @@ async function createApp(overrides: Record<string, string> = {}): Promise<INestA
   const moduleRef = await Test.createTestingModule({
     imports: [AppModule.forRoot(config)],
   }).compile();
-  const app = moduleRef.createNestApplication({ bufferLogs: true });
+  const app = moduleRef.createNestApplication({ bufferLogs: true, bodyParser: false });
   configureApp(app, config);
   await app.init();
   return app;
