@@ -23,3 +23,21 @@ export async function POST(request: Request): Promise<Response> {
   }
   return Response.json(payload, { status: response.status });
 }
+
+export async function DELETE(): Promise<Response> {
+  const config = loadWebConfig();
+  const jar = await cookies();
+  const session = jar.get('mpfa_session')?.value;
+  if (session) {
+    await fetch(new URL('/api/v1/auth/logout', config.API_INTERNAL_URL), {
+      method: 'POST',
+      headers: {
+        authorization: `Bearer ${session}`,
+        cookie: `mpfa_session=${encodeURIComponent(session)}`,
+      },
+      cache: 'no-store',
+    }).catch(() => undefined);
+  }
+  jar.set('mpfa_session', '', { httpOnly: true, sameSite: 'lax', path: '/', maxAge: 0 });
+  return Response.json({ ok: true });
+}

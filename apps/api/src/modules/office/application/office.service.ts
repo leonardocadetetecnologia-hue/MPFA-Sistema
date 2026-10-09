@@ -7,7 +7,7 @@ import {
 } from '../../../common/errors/domain-error';
 import { toPortalView, portalPublicationWhere } from '../../client-portal/domain/portal-scope';
 import { DASHBOARD_FORMULAS } from '../../dashboards/domain/formulas';
-import { assertCan, type Actor } from '../../iam/domain/access';
+import { assertCan, can, type Actor } from '../../iam/domain/access';
 import {
   elapsedSeconds,
   intervalsOverlap,
@@ -86,6 +86,82 @@ export class OfficeService {
     return { page, page_size: take, total, items };
   }
 
+  async listClients(actor: Actor, query: { q?: string; page?: number }) {
+    assertCan(actor, 'publication.read');
+    const page = Math.max(1, query.page ?? 1);
+    const take = 20;
+    const where = {
+      organizationId: actor.organizationId,
+      deletedAt: null,
+      ...(query.q ? { name: { contains: query.q, mode: 'insensitive' as const } } : {}),
+    };
+    const [items, total] = await Promise.all([
+      this.prisma.client.findMany({
+        where,
+        orderBy: { name: 'asc' },
+        skip: (page - 1) * take,
+        take,
+        select: { id: true, name: true, externalId: true },
+      }),
+      this.prisma.client.count({ where }),
+    ]);
+    return { page, page_size: take, total, items };
+  }
+
+  async listPublications(
+    actor: Actor,
+    query: { q?: string; link?: 'PENDING' | 'CONFIRMED' | 'REJECTED'; page?: number },
+  ) {
+    assertCan(actor, 'publication.read');
+    const page = Math.max(1, query.page ?? 1);
+    const take = 20;
+    const where = {
+      organizationId: actor.organizationId,
+      ...(query.link ? { link: { status: query.link } } : {}),
+      ...(query.q
+        ? {
+            OR: [
+              { cnjFormatted: { contains: query.q } },
+              { actType: { contains: query.q, mode: 'insensitive' as const } },
+              { text: { contains: query.q, mode: 'insensitive' as const } },
+            ],
+          }
+        : {}),
+    };
+    const [rows, total] = await Promise.all([
+      this.prisma.publicationOccurrence.findMany({
+        where,
+        orderBy: [{ publicationDate: 'desc' }, { ordinal: 'asc' }],
+        skip: (page - 1) * take,
+        take,
+        select: {
+          id: true,
+          ordinal: true,
+          cnjFormatted: true,
+          actType: true,
+          publicationDate: true,
+          availabilityDate: true,
+          state: true,
+          isRevision: true,
+          ambiguous: true,
+          text: true,
+          link: { select: { status: true, processId: true } },
+          decision: { select: { outcome: true, reason: true, assigneeId: true } },
+        },
+      }),
+      this.prisma.publicationOccurrence.count({ where }),
+    ]);
+    return {
+      page,
+      page_size: take,
+      total,
+      items: rows.map((row) => ({
+        ...row,
+        text: row.text.replace(/\s+/g, ' ').slice(0, 240),
+      })),
+    };
+  }
+
   async createRoutingRule(
     actor: Actor,
     input: {
@@ -126,11 +202,37 @@ export class OfficeService {
         link: true,
         decision: true,
         comments: { where: { internal: true }, select: { id: true, body: true, createdAt: true } },
-        batch: { select: { id: true, subject: true, message: { select: { html: true } } } },
+        batch: { select: { id: true, subject: true } },
       },
     });
     if (!row) throw new NotFoundError('NOT_FOUND', 'Publicação não encontrada.');
-    return row;
+    return {
+      id: row.id,
+      ordinal: row.ordinal,
+      cnj: row.cnjFormatted,
+      act_type: row.actType,
+      text: row.text,
+      publication_date: row.publicationDate,
+      availability_date: row.availabilityDate,
+      processed_on: row.processedOn,
+      journal: row.journal,
+      notebook: row.notebook,
+      location: row.location,
+      page: row.page,
+      parties: row.parties,
+      lawyers: row.lawyers,
+      intimated: row.intimated,
+      state: row.state,
+      issues: row.issues,
+      is_revision: row.isRevision,
+      ambiguous: row.ambiguous,
+      document_id: row.documentId,
+      document_url: row.documentUrl,
+      link: row.link,
+      decision: row.decision,
+      comments: row.comments,
+      batch: row.batch ? { id: row.batch.id, subject: row.batch.subject } : null,
+    };
   }
 
   async confirmLink(actor: Actor, occurrenceId: string, processId: string) {
@@ -413,6 +515,31 @@ export class OfficeService {
       return created;
     });
     return entry;
+  }
+
+  async listTime(actor: Actor) {
+    assertCan(actor, 'time.entry');
+    const canReview = can(actor, 'time.review');
+    return this.prisma.timeEntry.findMany({
+      where: {
+        organizationId: actor.organizationId,
+        ...(canReview ? {} : { userId: actor.userId }),
+      },
+      orderBy: { createdAt: 'desc' },
+      take: 50,
+      select: {
+        id: true,
+        description: true,
+        classification: true,
+        workedMinutes: true,
+        billableMinutes: true,
+        status: true,
+        entryDate: true,
+        overlapWarning: true,
+        returnReason: true,
+        version: true,
+      },
+    });
   }
 
   async currentTimer(actor: Actor) {

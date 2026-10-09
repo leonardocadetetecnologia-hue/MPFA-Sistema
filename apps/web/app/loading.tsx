@@ -1,8 +1,8 @@
 export default function Loading() {
   return (
-    <main className="shell">
+    <main className="gate">
       <p className="muted" role="status" aria-live="polite">
-        Verificando status da plataforma…
+        Carregando…
       </p>
     </main>
   );

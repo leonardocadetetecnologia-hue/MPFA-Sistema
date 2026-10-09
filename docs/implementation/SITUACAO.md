@@ -2,7 +2,7 @@
 
 Atualizado: 2026-10-08
 
-Consulte este arquivo para ver o que já funciona e o que falta.
+Consulte este arquivo para ver o que já funciona e o que falta. O que revisar antes da VPS está em `PROXIMO-PASSO.md`.
 
 ## Validado nesta sessão
 
@@ -17,7 +17,7 @@ Comandos, na raiz do repositório, com Node portátil local (não versionado):
 
 A amostra `.msg` local foi lida pelo teste e não entrou no Git. Resultado: 9 publicações, 6 números de processo, 2 revisões, datas de disponibilização e publicação diferentes, ambiguidade de nome/OAB, e a segunda importação do mesmo arquivo devolveu o mesmo lote sem aumentar a contagem. O `.eml` sintético do repositório manteve 4 publicações, 3 processos sugeridos sem cliente, reimportação sem duplicar e reprocessamento de lote `FAILED` sem criar tarefa. O PDF local foi gravado com a limitação `pdf_without_html_comments` e zero publicações extraídas.
 
-No navegador, senha errada mostrou o alerta. O usuário `admin@mpfa.local` entrou e a importação do `.eml` sintético pela tela mostrou lote `COMPLETED_WITH_PENDINGS`, 4 publicações, 3 processos e 2 revisões.
+No navegador, na passagem anterior, senha errada mostrou o alerta e `admin@mpfa.local` importou o `.eml` sintético com lote `COMPLETED_WITH_PENDINGS`, 4 publicações, 3 processos e 2 revisões. Nesta passagem a tela de entrada foi revista em Claro e Black Piano, com a marca inteira, e `/painel` sem sessão voltou para `/login`. A digitação da senha no navegador desta passagem foi bloqueada, então as jornadas já autenticadas não foram repetidas.
 
 `npm run format:check` falha neste checkout Windows em arquivos que já estavam no repositório, por causa de fim de linha. Os arquivos novos desta entrega foram passados pelo Prettier.
 
@@ -31,10 +31,11 @@ No navegador, senha errada mostrou o alerta. O usuário `admin@mpfa.local` entro
 | Identidade, sessão, perfis e seed | Implementado e validado | `iam`, `infrastructure/scripts/seed.mjs` | Senha errada mostra o alerta; `admin@mpfa.local` entra e cai em `/importacao`. Sessão ausente expira. Usuário desativado perde a sessão aberta | Recuperação de senha grava a intenção e não envia e-mail |
 | Clientes, processos, filtro interno e conferência | Implementado e validado no vínculo | `OfficeService` e a importação | Processo sugerido fica sem cliente; vínculo `PENDING` | Nenhuma regra interna de produção cadastrada |
 | Tarefas, ações e horas | Implementado | `office` e `time-entries/domain/hours.ts` | Temporizador gravado, recarregado e encerrado em rascunho no teste de persistência | Aprovação e fechamento de período estão no serviço, sem caso de integração próprio |
-| Painéis | Implementado | `DASHBOARD_FORMULAS` e `OfficeService.dashboards` | Fórmulas no contrato da resposta | Sem desenho visual |
-| Portal do cliente | Implementado e validado | `portal-scope` e publicação explícita | O teste de persistência publicou uma ocorrência e a nota interna não apareceu na resposta | Sem tela do portal |
+| Painéis | Implementado | `DASHBOARD_FORMULAS`, `OfficeService.dashboard` e `/painel` | Fórmulas no contrato e na tela | A tela autenticada não foi reaberta nesta passagem |
+| Portal do cliente | Implementado e validado no contrato | `portal-scope`, publicação explícita e `/portal` | O teste de persistência publicou uma ocorrência e a nota interna não apareceu na resposta. A rota sem sessão volta para o login | A sessão de cliente não foi aberta nesta passagem |
 | Microsoft 365 | Implementado com validação externa pendente | `integrations/microsoft365.ts` | Teste unitário: `disconnected` e `externally_validated: false` | Sem tenant e sem chamada ao Graph |
-| View mínima | Implementado e validado | `/login` e `/importacao` | No navegador, o `.eml` sintético gerou lote `COMPLETED_WITH_PENDINGS`, 4 publicações, 3 processos e 2 revisões | Sem identidade visual |
+| View mínima | Substituída pela interface operacional | `/login` e `/importacao` | A importação sintética anterior continua válida. `/importacao` agora abre Publicações | — |
+| Interface operacional | Implementado | `apps/web` shell, temas, jornadas e `GET` de publicações, clientes e horas | Typecheck da web e da API saiu 0. ESLint de `apps/web` e do módulo office saiu 0. Testes unitários da API: 39 passando. No navegador, login em Claro e Black Piano, marca visível, e `/painel` sem sessão volta para `/login`. As rotas novas sem sessão respondem 401 | Entrada autenticada (importar, listar, portal e cronômetro) não foi reexecutada nesta passagem |
 | Financeiro, RPA, API do ADVWIN, e-mail real, deploy | Não implementado | — | — | Fora desta execução. Financeiro continua em discovery |
 
 ## O que a importação faz

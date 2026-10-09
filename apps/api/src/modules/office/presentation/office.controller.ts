@@ -60,6 +60,31 @@ export class OfficeController {
     return this.office.searchProcesses(required(req), { q, page: page ? Number(page) : 1 });
   }
 
+  @Get('clients')
+  clients(@Req() req: RequestWithActor, @Query('q') q?: string, @Query('page') page?: string) {
+    return this.office.listClients(required(req), { q, page: page ? Number(page) : 1 });
+  }
+
+  @Get('publications')
+  publications(
+    @Req() req: RequestWithActor,
+    @Query('q') q?: string,
+    @Query('link') link?: string,
+    @Query('page') page?: string,
+  ) {
+    const parsed = z
+      .enum(['PENDING', 'CONFIRMED', 'REJECTED'])
+      .optional()
+      .safeParse(link || undefined);
+    if (!parsed.success)
+      throw new ValidationError('INVALID_LINK', 'Situação de vínculo desconhecida.');
+    return this.office.listPublications(required(req), {
+      q,
+      link: parsed.data,
+      page: page ? Number(page) : 1,
+    });
+  }
+
   @Post('routing-rules')
   createRule(@Req() req: RequestWithActor, @Body() body: unknown) {
     const input = parse(
@@ -199,6 +224,11 @@ export class OfficeController {
       startedAt: input.started_at,
       endedAt: input.ended_at,
     });
+  }
+
+  @Get('time-entries')
+  timeEntries(@Req() req: RequestWithActor) {
+    return this.office.listTime(required(req));
   }
 
   @Get('time-entries/timer')
