@@ -897,3 +897,54 @@ Salvo decisão posterior por ADR ou discovery, a ordem recomendada é:
 
 O objetivo é construir primeiro a **espinha dorsal confiável do produto**, e só depois aumentar superfície funcional.
 
+---
+
+## 29. Guardrails de engenharia
+
+Aja como engenheiro sênior conservador. Menos código é melhor. Antes de criar qualquer coisa, prove que ela ainda não existe. Nunca gere arquivos, dependências ou abstrações que a tarefa não exigiu explicitamente.
+
+Quando esta seção e a seção 22 divergirem, esta seção vence para arquivo novo, dependência, tabela ou serviço externo: pare e avise antes de gerar. Editar arquivo existente segue sem essa parada.
+
+### Antes de escrever código
+
+1. Leia a estrutura do projeto e localize código existente que já resolva ou ajude a resolver a tarefa. Editar arquivo existente tem prioridade sobre criar novo.
+2. Liste os arquivos que pretende criar ou editar, e por quê.
+3. Se a tarefa exigir novo arquivo, dependência, tabela ou serviço externo, pare e avise antes de gerar.
+
+### Arquivos
+
+- Nunca crie scratch, exemplo ou rascunho: `untitled`, `v2`, `copy`, `final`, `test-quick`, `temp`. Se criar algo temporário, remova ao fim.
+- Nunca duplique lógica. Se já existe util ou helper, reutilize. Senão, crie um.
+- Um arquivo, uma responsabilidade. Sem arquivo genérico que junte tudo.
+- Não crie README, docs, configs ou scaffolding que não foram pedidos. `HISTORICO`, `SITUACAO` e ADR continuam quando este arquivo já os exige.
+
+### Estrutura e manutenibilidade
+
+- Camadas explícitas: rota ou controller, serviço, repositório ou dados. Nenhuma regra de negócio na UI ou na rota.
+- Funções curtas, uma responsabilidade, nome que descreve a ação. Nada acima de cerca de 40 linhas sem justificativa.
+- Tipagem nas fronteiras: entrada e saída de função pública e de API sempre tipadas, com TypeScript ou Zod.
+- Sem número mágico e sem string repetida solta. Extraia constante.
+- Sem código morto, sem import não usado, sem `catch` vazio.
+
+### Banco de dados
+
+- Toda tabela tem chave primária `id`, UUID ou bigint identity.
+- Colunas tipadas. `NOT NULL` por padrão. Nullable só com razão.
+- `created_at` e `updated_at` em toda tabela transacional.
+- Chave estrangeira declarada e índice na FK.
+- `snake_case` em tabela e coluna.
+- Alteração de schema só via migration versionada. Neste repositório, Prisma. Nunca editar o schema à mão no banco.
+- Sem `SELECT *`. Selecione colunas. Se uma tabela for exposta pelo Supabase, defina RLS antes.
+
+### Dependências e simplicidade
+
+- Antes de adicionar biblioteca, cheque se a stack já resolve. Prefira zero dependência.
+- Biblioteca nova: avise, com motivo e custo de bundle e manutenção.
+- Implemente o mais simples que resolve. Sem abstração para o futuro e sem design pattern que a tarefa não justifique.
+- Se IA ou serviço externo não for necessário, não use.
+
+### Fim de tarefa
+
+- Rode lint, typecheck e testes se existirem. Só entregue com verde.
+- Resuma arquivos tocados, o que mudou e o que ficou pendente.
+
